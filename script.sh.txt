@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#./ut_test.sh
+
+rm envsetup.sh
+echo export PIP_INDEX_URL=https://icgen5.artifactory.cc.bmwgroup.net/artifactory/api/pypi/ic-gen5-pypi/simple >> envsetup.sh
+echo export GHS_LMHOST=@ATSEWI2024.acsiatech.com >> envsetup.sh
+echo export GHS_LMPORT=2009 >> envsetup.sh
+echo export ICCI_CODECRAFT_USER=akhilbabupartner >> envsetup.sh
+echo export CONAN_USER_HOME=~/. >> envsetup.sh
+echo export EB_LICENSE_FILE=@aox-dea-lic-01.aox.de >> envsetup.sh 
+echo export ICCI_CMAKE_GENERATOR_HOST='"Visual Studio 16 2019"' >> envsetup.sh
+export GIT_LFS_SKIP_SMUDGE=1
+source envsetup.sh
+
+#rm -rf idc-project
+#git clone --branch create-stable-branch/release/idc-11.37 git@cc-github.bmwgroup.net:icgen5/idc-project.git idc-project
+cd idc-project
+#pwd
+
+git lfs install
+git submodule foreach --recursive git lfs install
+git clean -dfx
+git submodule foreach --recursive git clean -dfx
+git reset --hard
+git submodule foreach --recursive git reset
+git submodule update --init --recursive
+
+echo "SUBMODULE UPDATE COMPLETED"
+source ../envsetup.sh
+echo $GHS_LMHOST
+#echo acsia@321 | sudo -S chmod 666 /var/run/docker.sock
+#docker rm icci-devenv-ioc-ut
+echo "CALLING PREPARE-DOCKER"
+#source toolenv/prepare-docker-ioc.sh
+echo "RUNNING DOCKER CONTAINER"
+#docker run -i --interactive --tty --name="icci-devenv-ioc-ut" --env ICCI_CODECRAFT_USER --env GHS_LMHOST --network="host" --volume ~:/home/$USER --volume $PWD:/workspace icci-devenv-ioc
+#docker run -i --name="icci-devenv-ioc-ut" --env ICCI_CODECRAFT_USER --env GHS_LMHOST --network="host" --volume ~:/home/$USER --volume $PWD:/workspace icci-devenv-ioc
+echo "SOURCE envsetup"
+source /home/devuser/IOC_UT/envsetup.sh
+
+docker start icci-devenv-ioc-ut
+docker exec -i icci-devenv-ioc-ut /bin/bash -c "source toolenv/prepare-tools.sh && doit xpc variant=Unittest && doit cmake --generator=Ninja --unittest-include-dir=ioc/repo variant=Unittest && doit build -t run_unittest__all && doit cmake --coverage --generator=Ninja --unittest-include-dir=ioc/repo --coverage-include-dir=ioc/repo variant=Unittest && doit build -t coverage"
+
+#echo "CALLING PREPARE-TOOLS"
+#source toolenv/prepare-tools.sh
+#echo "DOIT"
+#doit xpc variant=Unittest
+#doit cmake --generator=Ninja --unittest-include-dir=ioc/repo variant=Unittest
+#doit build -t run_unittest__all
+
+#doit cmake --coverage --generator=Ninja --unittest-include-dir=ioc/repo --coverage-include-dir=ioc/repo variant=Unittest
+
+#doit build -t coverage
