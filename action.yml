@@ -12,9 +12,9 @@ inputs:
   body:
     description: 'The contents of the comment.'
     required: true
-  path:
+  path: https://github.com/Acsiavignesh/master/blob/main/action.yml
     description: 'Relative path of the file to comment on.'
-  position:
+  position: 1
     description: 'Line index in the diff to comment on.'
 runs:
   using: 'node16'
