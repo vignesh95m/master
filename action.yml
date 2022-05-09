@@ -7,7 +7,7 @@ inputs:
   repository:
     description: 'The full name of the target repository.'
     default: ${{ Master }}
-  sha:
+  sha: b87a6e13367a6d60cf81cc2ff62855a7775b3bb2
     description: 'The commit SHA.'
   body:
     description: 'The contents of the comment.'
